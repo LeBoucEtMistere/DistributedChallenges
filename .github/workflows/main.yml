@@ -18,9 +18,15 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - run: (test -x $HOME/.cargo/bin/mdbook || cargo install --vers "^0.4" mdbook)
+      - uses: baptiste0928/cargo-install@v2
+        name: Install mdbook cli
+        with:
+          crate: mdbook
+          version: "^0.4" # You can specify any semver range
       - run: mdbook build ./tutorial && mdbook test ./tutorial # In case of custom book path: mdbook build path/to/mybook && mdbook test path/to/mybook
+        name: Build and test the book
       - uses: JamesIves/github-pages-deploy-action@4.1.7
+        name: Deploy mdbook to GH Pages
         with:
           branch: gh-pages # The branch the action should deploy to.
           folder: tutorial/book # The folder the action should deploy.
