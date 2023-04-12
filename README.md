@@ -57,6 +57,21 @@ Then, you can specify a `.rustfmt.toml` file at the root of your project with th
 group_imports = "StdExternalCrate"
 ```
 
+### Install Maelstrom
+
+```bash
+brew install openjdk graphviz gnuplot
+sudo ln -sfn /opt/homebrew/opt/openjdk/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk.jdk
+curl -L https://github.com/jepsen-io/maelstrom/releases/download/v0.2.3/maelstrom.tar.bz2 > /tmp/maelstrom.tar.bz2
+tar -C ~/ -xvf /tmp/maelstrom.tar.bz2 
+```
+
+### Run Maelstrom
+For the echo challenge:
+```bash
+~/maelstrom/maelstrom test -w echo --bin ./target/debug/echo --node-count 1 --time-limit 10
+```
+
 ## Cargo 101
 `cargo` is the main interface with rust you will use. This is a CLI tool that exposes all commands to check, build, format, and release your code, and that handles interacting with the compiler `rustc` for you. Think of it as `poetry` for python or `npm` for node.
 
@@ -77,17 +92,3 @@ cargo add <crate_name> # add a crate to your project, i.e. a dependency
 cargo remove <crate_name> # remove a crate from your project
 ```
 
-### Install Maelstrom
-
-```bash
-brew install openjdk graphviz gnuplot
-sudo ln -sfn /opt/homebrew/opt/openjdk/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk.jdk
-curl -L https://github.com/jepsen-io/maelstrom/releases/download/v0.2.3/maelstrom.tar.bz2 > /tmp/maelstrom.tar.bz2
-tar -C ~/ -xvf /tmp/maelstrom.tar.bz2 
-```
-
-### Run Maelstrom
-For the echo challenge:
-```bash
-~/maelstrom/maelstrom test -w echo --bin ./target/debug/echo --node-count 1 --time-limit 10
-```
