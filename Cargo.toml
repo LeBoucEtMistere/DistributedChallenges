@@ -1,0 +1,7 @@
+[workspace]
+
+members = ["distributed_challenges_solution", "node_driver"]
+
+[workspace.dependencies]
+anyhow = "1"
+serde = { version = "1", features = ["derive"] }
