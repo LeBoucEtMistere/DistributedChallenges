@@ -1,0 +1,6 @@
+[book]
+authors = ["Arthur Depasse"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Rust Workshop Tutorial: Distributed Systems Challenges"
