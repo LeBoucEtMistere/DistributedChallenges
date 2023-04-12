@@ -62,7 +62,7 @@ Maelstrom is built in Clojure and therefore requires the Java JDK to run. It als
 brew install openjdk graphviz gnuplot
 ```
 You will need to tell your system about this java version by running
-```
+```bash
 sudo ln -sfn /opt/homebrew/opt/openjdk/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk.jdk
 ```
 
