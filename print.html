@@ -84,7 +84,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="00-intro.html">Introduction</a></li><li class="chapter-item expanded "><a href="01-setup.html"><strong aria-hidden="true">1.</strong> Chapter 1: Setup</a></li><li class="chapter-item expanded "><a href="02-basics.html"><strong aria-hidden="true">2.</strong> Chapter 2: Basic knowledge of Rust</a></li><li class="chapter-item expanded "><a href="03-echo.html"><strong aria-hidden="true">3.</strong> Chapter 3: The Echo challenge</a></li><li class="chapter-item expanded affix "><a href="A-cargo.html">Appendix A: Cargo Cheatsheet</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="00-intro.html">Introduction</a></li><li class="chapter-item expanded "><a href="01-setup.html"><strong aria-hidden="true">1.</strong> Chapter 1: Setup</a></li><li class="chapter-item expanded "><a href="02-basics.html"><strong aria-hidden="true">2.</strong> Chapter 2: Basic knowledge of Rust</a></li><li class="chapter-item expanded "><a href="03-echo.html"><strong aria-hidden="true">3.</strong> Chapter 3: The Echo challenge</a></li><li class="chapter-item expanded "><a href="04-unique_id.html"><strong aria-hidden="true">4.</strong> Chapter 4: The Unique Id challenge</a></li><li class="chapter-item expanded affix "><a href="A-cargo.html">Appendix A: Cargo Cheatsheet</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -211,6 +211,44 @@ rm -rf /tmp/maelstrom.tar.bz2
 <p>Each problem will come with a set of Maelstrom commands to run it and test it so you don't have to worry on understanding all the parameters you can pass to the CLI.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-2-basic-knowledge-of-rust"><a class="header" href="#chapter-2-basic-knowledge-of-rust">Chapter 2: Basic knowledge of Rust</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-3-the-echo-challenge"><a class="header" href="#chapter-3-the-echo-challenge">Chapter 3: The Echo challenge</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-4-the-unique-id-challenge"><a class="header" href="#chapter-4-the-unique-id-challenge">Chapter 4: The Unique Id challenge</a></h1>
+<h2 id="explanation"><a class="header" href="#explanation">Explanation</a></h2>
+<p>You can find the challenge here: <a href="https://fly.io/dist-sys/1/">https://fly.io/dist-sys/1/</a></p>
+<p>The goal of this challenge is to generate unique ids across several nodes. There are two approaches to this solution:</p>
+<ul>
+<li>let the nodes communicate between them to sync (complex)</li>
+<li>generate ids with enough entropy to avoid collisions between two generation no matter the node (easy)</li>
+</ul>
+<p>We will follow the second approach and rely on <a href="https://en.wikipedia.org/wiki/Universally_unique_identifier">UUIDs</a> generation algorithms, and more specifically UUIDs V4.</p>
+<h2 id="walkthrough"><a class="header" href="#walkthrough">Walkthrough</a></h2>
+<p>The code will be very similar to the Echo challenge code, so feel free to copy and paste and try it by yourself if you want, the only new concepts will be around importing a library (a crate in rust lingua) to our project, but other than this, you already have all the knowledge to do it by yourself.</p>
+<p>Let's start by defining the messages we want to receive and send, based on the description provided by the challenge:
+We have a Generate request with the following body</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;generate&quot;
+}
+</code></pre>
+<p>and a GenerateOk response with the following body:</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;generate_ok&quot;,
+  &quot;id&quot;: &quot;123&quot;
+}
+</code></pre>
+<p>(note the id can be of any type but we will stick with a string here since that's what UUIDs use)</p>
+<p>Therefore, we will write the following enum to describe the payloads our application can deal with:</p>
+<pre><code class="language-rust ignore">#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = &quot;type&quot;)]
+#[serde(rename_all = &quot;snake_case&quot;)]
+enum UniqueIdPayload {
+    /// Used by clients to send a generate request
+    Generate,
+    /// Used by nodes to respond to a generate request, we use a string typed ID since we
+    /// will return uuid-v4
+    GenerateOk { id: String },
+}</code></pre>
+<p>As in the previous part, you can note the various annotations on the enum to derive the common basic traits <code>Debug</code> and <code>Clone</code>, and the traits related to ser/de <code>Serialize</code> and <code>Deserialize</code>. These generate all the base scaffolding code under the hood to enable this enum variants to be easily displayed, cloned, serialized and deserialized (to json in particular which is what we care for here). There also are <code>serde</code> relative annotations to internally tag the enum variants with a type field, and rename all variants to a snake_case format. This basically gives us the required <code>type = </code> field in the json payload.</p>
+<p>We have two variants, Generate representing generate requests, which doesn't contain any data, and GenerateOk representing a response to this request, that contains a field named <code>id</code> of type String.</p>
+<p>As in the previous part, this paylaod enum is made to be inserted in the payload field of the <code>Message</code> type provided by the <code>node_driver</code> lib.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="appendix-a-cargo-cheatsheet"><a class="header" href="#appendix-a-cargo-cheatsheet">Appendix A: Cargo Cheatsheet</a></h1>
 <p><code>cargo</code> is the main interface with rust you will use. This is a CLI tool that exposes all commands to check, build, format, and release your code, and that handles interacting with the compiler <code>rustc</code> for you. Think of it as <code>poetry</code> for python or <code>npm</code> for node.</p>
 <p>Here is a quick cheatsheet of useful commands:</p>
