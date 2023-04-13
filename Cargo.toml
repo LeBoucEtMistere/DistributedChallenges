@@ -1,6 +1,10 @@
 [workspace]
 
-members = ["distributed_challenges_solution", "node_driver"]
+members = [
+    "distributed_challenges_solution",
+    "node_driver",
+    "distributed_challenges",
+]
 
 [workspace.dependencies]
 anyhow = "1"
