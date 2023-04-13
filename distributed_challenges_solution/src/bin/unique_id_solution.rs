@@ -20,7 +20,7 @@ fn main() -> anyhow::Result<()> {
     // main loop: for each message we receive through the input interface (with a payload of type UniqueIdPayload)
     for msg in input.iter::<UniqueIdPayload>() {
         // if there was an error getting this message, propagate it (with the ? sigil)
-        let msg = msg.context("While parsing echo message")?;
+        let msg = msg.context("While parsing unique_id message")?;
         // match on the type of payload within the message, these are variants of the UniqueIdPayload enum
         match msg.body.payload {
             // if we get a Generate message, let's reply by crafting an GenerateOk message and sending it through the output interface
