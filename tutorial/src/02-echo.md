@@ -1,4 +1,4 @@
-# Chapter 3: The Echo challenge
+# Chapter 2: The Echo challenge
 
 ## Explanation
 
@@ -34,7 +34,7 @@ Reading through the challenge guide, we see our node will receive `echo` message
 As explained above, the `node_driver` library provides you everything you need to model such messages. Therefore, before writing any Rust, we will start by reading the documentation of this library, and more particularly the documentation of the [Message struct](https://distributed-challenges.vercel.app/node_driver/struct.Message.html).
 
 This is our first encounter with a `struct`, the concept Rust uses to define aggregates of data. This is in a way very similar to C structs as you define your data and the behaviors to operate on it separately. Our data structure definition looks like this:
-```rust
+```rust,ignore
 pub struct Message<P> {
     pub src: String,
     pub dst: String,
@@ -51,7 +51,7 @@ We see two basic fields `src` and `dst`, of type String.
 The last field type has a generic annotation (the `<P>` syntax, C++ users should feel pretty much at home here). It means that the `Message` struct is generic over a type, noted `P`, and here this type `P` is used in the definition of the type of the field `body`: a `Body<P>`. Let's look at the documentation for the type `Body` to understand what's going on here.
 
 The `Body` struct is documented like this:
-```rust
+```rust,ignore
 pub struct Body<P> {
     pub msg_id: Option<usize>,
     pub in_reply_to: Option<usize>,
@@ -62,7 +62,7 @@ pub struct Body<P> {
 There are two new things there: we see two fields that are of type `Option<usize>`, and the last field is of the type `P`, our generic type parameter. Let's explain each.
 
 `Option<T>` is another generic struct, in fact it comes from the Rust standard lib and is a staple of any Rust program, you can see the doc for this struct by clicking on it in the doc of the `Body` struct. This is actually an `enum` and not a `struct`, defined as:
-```rust
+```rust,ignore
 pub enum Option<T> {
     None,
     Some(T),
@@ -79,7 +79,7 @@ Let's go back at our `Body` struct and look at the `payload` field. We see it is
 ### Defining the messages
 
 Armed with this knowledge, let's hop into our editor and start writing Rust to represent the `echo` messages. Open the file `distributed_challenges/src/bin/echo.rs`. You are faced with this:
-```rust
+```rust,ignore
 fn main() -> anyhow::Result<()> {
     todo!()
 }
@@ -90,7 +90,7 @@ The corpus of the function is a single invocation of the `todo!()` macro. Any fu
 
 Let's define an enumeration to represent the payloads for the two messages our application will need to handle. Add this definition outside of the main function:
 
-```rust
+```rust,ignore
 /// Defines the payload we want to send to clients in the echo challenge
 enum EchoPayload {
     /// Used by clients to send an echo request
@@ -105,7 +105,7 @@ We have two variants, one for each message, and each of them contains a string f
 Let's make our enum a little bit easier to work with by adding some useful behaviors to it: `Debug` and `Clone`. The first one will allow us to print the enum content to debug it, and the second will make it so we can clone instances of the enum if we need to.
 In fact, these "behaviors" are what we call in Rust `traits`. A trait defines functions, and can be implemented on types. This is in a way the interfaces of Rust, although it is much more powerful than this.
 The `Debug` and `Clone` traits are provided by the Rust standard library: [https://doc.rust-lang.org/std/clone/trait.Clone.html](https://doc.rust-lang.org/std/clone/trait.Clone.html) and [https://doc.rust-lang.org/std/fmt/trait.Debug.html](https://doc.rust-lang.org/std/fmt/trait.Debug.html). We could manually implement it for our type if we wanted to do fancy things, but the compiler is smart enough to infer basic implementations of these traits for us and all we have to do to get it is to add this line on top of our enum:
-```rust
+```rust,ignore
 /// Defines the payload we want to send to clients in the echo challenge
 #[derive(Debug, Clone)]
 enum EchoPayload {
@@ -121,7 +121,7 @@ This tells the Rust compiler to generate an implementation of both the `Clone` a
 
 Now that we have a payload enum, let's start writing the logic of our server. In the main, let's first initialize our Malestrom client:
 
-```rust
+```rust,ignore
 use node_driver::Maelstrom;
 
 // ... snip ...
@@ -145,7 +145,7 @@ There's a bunch of new concepts here:
 You'll see that if you remove the `?` sigil for instance, running `cargo build` or `cargo check` will give you a clear compiler error that the type don't match and that you need to ensure the result returned by the `init` method is not an error. This is what the `?` sigil does, it bubbles up any error and if there is none, it "unwrap" the data out of the Result type. I encourage you to try stuff and read compiler errors, they have been designed to be as informative as possible and explain properly the source of your issue and how to solve it.
 
 Now that our node is initialized, we can add our main loop over the incoming messages:
-```rust
+```rust,ignore
 // ... snip ...
 
 fn main() -> anyhow::Result<()> {
@@ -227,7 +227,7 @@ Therefore, let's implement both `serde::Serialize` and `serde:Deserialize` for o
 
 We could implement these traits by hand but fortunately, `serde` comes with a feature that allows us to use the helpful `derive` statement to auto-implement them for struct that only contain data that also implement them (which is the case here, all default data types implement them).
 
-```rust
+```rust,ignore
 use serde::{Serialize, Deserialize}
 /// Defines the payload we want to send to clients in the echo challenge
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -291,7 +291,7 @@ Note we added two `#[serde(...)]` annotations to our enum. The first one asks se
 
 
 We end up with the following code at this point:
-```rust
+```rust,ignore
 use node_driver::Maelstrom;
 use serde::{Deserialize, Serialize};
 
@@ -323,11 +323,7 @@ It's now time to code the logic to react to the messages we receive.
 
 First, we need to extract the message out of the `Result<Message<EchoPayload>>` returned by our iterator:
 
-```rust, ignore
-use anyhow::Context;
-
-// ... snip ...
-
+```rust,ignore
 fn main() -> anyhow::Result<()> {
     // init our node by getting its metadata and an output and input interface to communicate
     let (mut node_metadata, mut input, mut output) = Maelstrom::init()?;
@@ -402,46 +398,9 @@ match msg.body.payload {
 We see that we instantiate a `Message` with an `EchoOk` payload, obtain a new message id from our `NodeMetadata` instance, and use our output interface to send it.
 
 You should end up with the following code:
-```rust
-use node_driver::{Body, Maelstrom, Message};
-use serde::{Deserialize, Serialize};
 
-/// Defines the payload we want to send to clients in the echo challenge
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(tag = "type")]
-#[serde(rename_all = "snake_case")]
-enum EchoPayload {
-    /// Used by clients to send an echo request
-    Echo { echo: String },
-    /// Used by nodes to respond to an echo request
-    EchoOk { echo: String },
-}
-
-fn main() -> anyhow::Result<()> {
-    // init our node by getting its metadata and an output and input interface to communicate
-    let (mut node_metadata, mut input, mut output) = Maelstrom::init()?;
-    // main loop: for each message we receive through the input interface (with a payload of type EchoPayload)
-    for msg in input.iter::<EchoPayload>() {
-        // if there was an error getting this message, propagate it (with the ? sigil)
-        let msg = msg?;
-        // match on the type of payload within the message, these are variants of the EchoPayload enum
-        match msg.body.payload {
-            // if we get an Echo message, let's reply by crafting an EchoOk message and sending it through the output interface
-            EchoPayload::Echo { echo } => output.send_msg(Message {
-                src: node_metadata.node_id.clone(),
-                dst: msg.src,
-                body: Body {
-                    msg_id: Some(node_metadata.get_next_msg_id()),
-                    in_reply_to: msg.body.msg_id,
-                    payload: EchoPayload::EchoOk { echo },
-                },
-            })?,
-            // we are not supposed to receive and EchoOk message, let's panic when it happens
-            EchoPayload::EchoOk { .. } => panic!("EchoOk message shouldn't be received by a node"),
-        };
-    }
-    Ok(())
-}
+```rust,ignore
+{{#include ../../distributed_challenges_solution/src/bin/echo_solution.rs}}
 ```
 
 ### Testing our solution

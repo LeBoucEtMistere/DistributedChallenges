@@ -1,4 +1,4 @@
-# Chapter 4: The Unique Id challenge
+# Chapter 3: The Unique Id challenge
 ## Explanation
 
 You can find the challenge here: [https://fly.io/dist-sys/2/](https://fly.io/dist-sys/2/)
