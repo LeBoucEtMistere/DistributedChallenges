@@ -1,4 +1,3 @@
-use anyhow::Context;
 use node_driver::{Body, Maelstrom, Message};
 use serde::{Deserialize, Serialize};
 
@@ -19,7 +18,7 @@ fn main() -> anyhow::Result<()> {
     // main loop: for each message we receive through the input interface (with a payload of type EchoPayload)
     for msg in input.iter::<EchoPayload>() {
         // if there was an error getting this message, propagate it (with the ? sigil)
-        let msg = msg.context("While parsing echo message")?;
+        let msg = msg?;
         // match on the type of payload within the message, these are variants of the EchoPayload enum
         match msg.body.payload {
             // if we get an Echo message, let's reply by crafting an EchoOk message and sending it through the output interface
