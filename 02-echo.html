@@ -3,8 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Rust Workshop Tutorial: Distributed Systems Challenges</title>
-        <meta name="robots" content="noindex" />
+        <title>Chapter 2: The Echo challenge - Rust Workshop Tutorial: Distributed Systems Challenges</title>
 
 
         <!-- Custom HTML head -->
@@ -84,7 +83,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="00-intro.html">Introduction</a></li><li class="chapter-item expanded "><a href="01-setup.html"><strong aria-hidden="true">1.</strong> Chapter 1: Setup</a></li><li class="chapter-item expanded "><a href="02-echo.html"><strong aria-hidden="true">2.</strong> Chapter 2: The Echo challenge</a></li><li class="chapter-item expanded "><a href="03-unique_id.html"><strong aria-hidden="true">3.</strong> Chapter 3: The Unique Id challenge</a></li><li class="chapter-item expanded affix "><a href="A-cargo.html">Appendix A: Cargo Cheatsheet</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="00-intro.html">Introduction</a></li><li class="chapter-item expanded "><a href="01-setup.html"><strong aria-hidden="true">1.</strong> Chapter 1: Setup</a></li><li class="chapter-item expanded "><a href="02-echo.html" class="active"><strong aria-hidden="true">2.</strong> Chapter 2: The Echo challenge</a></li><li class="chapter-item expanded "><a href="03-unique_id.html"><strong aria-hidden="true">3.</strong> Chapter 3: The Unique Id challenge</a></li><li class="chapter-item expanded affix "><a href="A-cargo.html">Appendix A: Cargo Cheatsheet</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -145,71 +144,7 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
-<p>This tutorial will walk you through solving Fly.io distributed challenges in Rust: https://fly.io/dist-sys/</p>
-<p>This is intended as an entry-level content to discover Rust, hopefully easily approachable by complete Rust beginners.</p>
-<p>The <a href="https://github.com/LeBoucEtMistere/DistributedChallenges">repo</a> structure is the following:</p>
-<ul>
-<li>The folder <a href="https://github.com/LeBoucEtMistere/DistributedChallenges/tree/main/distributed_challenges_solution">distributes_challenges_solution</a> contains a rust project with the full solution</li>
-<li>The folder <a href="https://github.com/LeBoucEtMistere/DistributedChallenges/tree/main/distributed_challenges">distributes_challenges</a> contains the initial template to start the workshop </li>
-<li>The folder <a href="https://github.com/LeBoucEtMistere/DistributedChallenges/tree/main/tutorial">tutorial</a> contains the sources of this book.</li>
-<li>The folder <a href="https://github.com/LeBoucEtMistere/DistributedChallenges/tree/main/node_driver">node_driver</a> contains a library that handles all the things related to communication with Maelstrom in rust, that your solution shall depend on.</li>
-</ul>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-1-setup"><a class="header" href="#chapter-1-setup">Chapter 1: Setup</a></h1>
-<p>In this first chapter, we will see how to setup a Rust toolchain from scratch, an IDE to develop Rust, and the Maelstrom testbench that we will use to evaluate your solutions to the various Distributed System challenges.</p>
-<h2 id="rust-setup"><a class="header" href="#rust-setup">Rust setup</a></h2>
-<h3 id="install-rust-toolchain"><a class="header" href="#install-rust-toolchain">Install Rust toolchain</a></h3>
-<p>Rust is installed through <code>rustup</code>, an utility which manages your rust toolchain (like <code>nvm</code> for node for instance). Install it with: </p>
-<pre><code class="language-bash">curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-</code></pre>
-<p>This repo builds on the latest stable version of Rust, <code>Rust 1.68</code>.
-When installing rustup, it will prompt you to install the latest stable Rust version. If you already have rust installed, run <code>rustup upgrade</code> to get the lastest version.</p>
-<p>Note that as stated by the installer, you will need to export an env variable in your shell .rc file after the install process, and restart your shell to pick it up.</p>
-<p>You can sanity check your installation by running <code>cargo --version</code>, more on cargo later.</p>
-<p>You will also need to install the MacOS vendored LLVM compiler (it's possible you already have it, but it tends to disappear after a major MacOS upgrade): run <code>xcode-select install</code>.</p>
-<h3 id="setting-up-ide"><a class="header" href="#setting-up-ide">Setting up IDE</a></h3>
-<p>I recommend VSCode for the easiest dev experience possible. We will configure it to leverage <code>rust-analyzer</code>, the official LSP server for Rust, <code>clippy</code> the official linter for Rust and <code>rustfmt</code> the official formatter for Rust.</p>
-<p>Note that both <code>rustfmt</code> and <code>clippy</code> ship with the default Rust toolchain install so you don't have to do anything to get them.</p>
-<p>To get <code>rust-analyzer</code>, we will install the VSCode integration called <code>rust-lang.rust-analyzer</code>. This extension will handle itself the process of downloading the binaries for <code>rust-analyzer</code> transparently.</p>
-<p>I then recommand to alter your VSCode config (<code>Cmd+,</code>) and add the following keys:</p>
-<pre><code class="language-json">{
-    &quot;editor.formatOnSave&quot;: true,
-    &quot;rust-analyzer.checkOnSave.command&quot;: &quot;clippy&quot;,
-}
-</code></pre>
-<p>Here are some other additional extensions that will make your developper experience smoother:</p>
-<ul>
-<li><code>serayuzgur.crates</code> Augmented functionalities to manage the crates used in your project</li>
-<li><code>tamasfe.even-better-toml</code> LSP for the TOML language which is often used with Rust</li>
-<li><code>usernamehw.errorlens</code> Inline errors in your code, making it easier to see them in context</li>
-</ul>
-<h3 id="optional-installing-a-nightly-toolchain-for-nicer-formatting"><a class="header" href="#optional-installing-a-nightly-toolchain-for-nicer-formatting">Optional: installing a nightly toolchain for nicer formatting</a></h3>
-<p>Some nice formatting options for your code are gated behind the nightly toolchain of Rust. In particular, the option to sort imports by type (std,3p,prj for instance). To get this, we can install the latest nightly toolchain using rustup (<code>rustup toolchain install nightly</code>). Then add the following in your vscode config file:</p>
-<pre><code class="language-json">{
-    &quot;rust-analyzer.rustfmt.extraArgs&quot;: [
-        &quot;+nightly&quot;
-    ],
-}
-</code></pre>
-<p>This will force the usage of the formatter coming with the nightly toolchain (this does not mean your project will be compiled with the nightly toolchain though, only the formatter will use it).</p>
-<p>Then, you can specify a <code>.rustfmt.toml</code> file at the root of your project with this content:</p>
-<pre><code class="language-toml">group_imports = &quot;StdExternalCrate&quot;
-</code></pre>
-<h2 id="maelstrom-setup"><a class="header" href="#maelstrom-setup">Maelstrom setup</a></h2>
-<p>The challenges we will solve are built on top of a platform called <a href="https://github.com/jepsen-io/maelstrom">Maelstrom</a>. This platform lets you build out a &quot;node&quot; in your distributed system and Maelstrom will handle the routing of messages between the those nodes. This lets Maelstrom inject failures and perform verification checks based on the consistency guarantees required by each challenge. You can see it as a simulator and test bench for developping distributed systems.</p>
-<p>Maelstrom is built in Clojure and therefore requires the Java JDK to run. It also provides some plotting and graphing utilities which rely on Graphviz &amp; gnuplot. You can install all the required dependencies with this command:</p>
-<pre><code class="language-bash">brew install openjdk graphviz gnuplot
-</code></pre>
-<p>You will need to tell your system about this java version by running</p>
-<pre><code class="language-bash">sudo ln -sfn /opt/homebrew/opt/openjdk/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk.jdk
-</code></pre>
-<p>We are now ready to download Maelstrom binary, the following commands will install it under <code>~/maelstrom/maelstrom</code>:</p>
-<pre><code class="language-bash">curl -L https://github.com/jepsen-io/maelstrom/releases/download/v0.2.3/maelstrom.tar.bz2 &gt; /tmp/maelstrom.tar.bz2
-tar -C ~/ -xvf /tmp/maelstrom.tar.bz2
-rm -rf /tmp/maelstrom.tar.bz2
-</code></pre>
-<p>Each problem will come with a set of Maelstrom commands to run it and test it so you don't have to worry on understanding all the parameters you can pass to the CLI.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-2-the-echo-challenge"><a class="header" href="#chapter-2-the-echo-challenge">Chapter 2: The Echo challenge</a></h1>
+                        <h1 id="chapter-2-the-echo-challenge"><a class="header" href="#chapter-2-the-echo-challenge">Chapter 2: The Echo challenge</a></h1>
 <h2 id="explanation"><a class="header" href="#explanation">Explanation</a></h2>
 <p>You can find the challenge here: <a href="https://fly.io/dist-sys/1/">https://fly.io/dist-sys/1/</a></p>
 <p>The goal of this challenge is to discover how to interact with Maelstrom and build a very basic echo server.</p>
@@ -547,169 +482,18 @@ fn main() -&gt; anyhow::Result&lt;()&gt; {
 <pre><code class="language-ignore">Everything looks good! ヽ(‘ー`)ノ
 </code></pre>
 <p>Congrats, you finished Challenge 1!</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-3-the-unique-id-challenge"><a class="header" href="#chapter-3-the-unique-id-challenge">Chapter 3: The Unique Id challenge</a></h1>
-<h2 id="explanation-1"><a class="header" href="#explanation-1">Explanation</a></h2>
-<p>You can find the challenge here: <a href="https://fly.io/dist-sys/2/">https://fly.io/dist-sys/2/</a></p>
-<p>The goal of this challenge is to generate unique ids across several nodes. There are two approaches to this solution:</p>
-<ul>
-<li>let the nodes communicate between them to sync (complex)</li>
-<li>generate ids with enough entropy to avoid collisions between two generation no matter the node (easy)</li>
-</ul>
-<p>We will follow the second approach and rely on <a href="https://en.wikipedia.org/wiki/Universally_unique_identifier">UUIDs</a> generation algorithms, and more specifically UUIDs V4.</p>
-<h2 id="walkthrough-1"><a class="header" href="#walkthrough-1">Walkthrough</a></h2>
-<p>The code will be very similar to the Echo challenge code, so feel free to copy and paste and try it by yourself if you want, the only new concepts will be around importing a library (a crate in rust lingua) to our project, but other than this, you already have all the knowledge to reach the last section of this chapter by yourself.</p>
-<h3 id="defining-the-message-payloads"><a class="header" href="#defining-the-message-payloads">Defining the message payloads</a></h3>
-<p>Let's start by defining the messages we want to receive and send, based on the description provided by the challenge:
-We have a Generate request with the following body</p>
-<pre><code class="language-json">{
-  &quot;type&quot;: &quot;generate&quot;
-}
-</code></pre>
-<p>and a GenerateOk response with the following body:</p>
-<pre><code class="language-json">{
-  &quot;type&quot;: &quot;generate_ok&quot;,
-  &quot;id&quot;: &quot;123&quot;
-}
-</code></pre>
-<p>(note the id can be of any type but we will stick with a string here since that's what UUIDs use)</p>
-<p>Therefore, we will write the following enum to describe the payloads our application can deal with:</p>
-<pre><code class="language-rust ignore">#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(tag = &quot;type&quot;)]
-#[serde(rename_all = &quot;snake_case&quot;)]
-enum UniqueIdPayload {
-    /// Used by clients to send a generate request
-    Generate,
-    /// Used by nodes to respond to a generate request, we use a string typed ID since we
-    /// will return uuid-v4
-    GenerateOk { id: String },
-}</code></pre>
-<p>As in the previous part, you can note the various annotations on the enum to derive the common basic traits <code>Debug</code> and <code>Clone</code>, and the traits related to ser/de <code>Serialize</code> and <code>Deserialize</code>. These generate all the base scaffolding code under the hood to enable this enum variants to be easily displayed, cloned, serialized and deserialized (to json in particular which is what we care for here). There also are <code>serde</code> relative annotations to internally tag the enum variants with a type field, and rename all variants to a snake_case format. This basically gives us the required <code>type = </code> field in the json payload.</p>
-<p>We have two variants, Generate representing generate requests, which doesn't contain any data, and GenerateOk representing a response to this request, that contains a field named <code>id</code> of type String.</p>
-<p>As in the previous part, this payload enum is made to be inserted in the payload field of the <code>Message</code> type provided by the <code>node_driver</code> lib.</p>
-<h3 id="writing-the-main-loop"><a class="header" href="#writing-the-main-loop">Writing the main loop</a></h3>
-<p>Now that we have our definition of the message payloads, let's start writing the main loop logic.
-As in the previous part, we need to start by initializing our Maelstrom node (don't hesitate to look again at the documentation of the library at <a href="https://distributed-challenges.vercel.app/">https://distributed-challenges.vercel.app/</a>):</p>
-<pre><code class="language-rust ignore">fn main() -&gt; anyhow::Result&lt;()&gt; {
-    // init our node by getting its metadata and an output and input interface to communicate
-    let (mut node_metadata, mut input, mut output) = Maelstrom::init()?;
-}</code></pre>
-<p>This gets us our input and output interfaces and the node metadata (that we also won't use much in this challenge).</p>
-<p>Let's start listening to incoming messages by looping on a blocking iterator on the messages received:</p>
-<pre><code class="language-rust ignore">fn main() -&gt; anyhow::Result&lt;()&gt; {
-    // init our node by getting its metadata and an output and input interface to communicate
-    let (mut node_metadata, mut input, mut output) = Maelstrom::init()?;
-    // main loop: for each message we receive through the input interface (with a payload of type UniqueIdPayload)
-    for msg in input.iter::&lt;UniqueIdPayload&gt;() {
-        // if there was an error getting this message, propagate it (with the ? sigil)
-        let msg = msg.context(&quot;While parsing unique_id message&quot;)?;
-
-        todo!()
-    }
-}</code></pre>
-<p>This time, we specify we want to receive messages with a payload of the type <code>UniqueIdPayload</code> that we just defined. We still have a line to propagate any error coming from the parsing/reception of the message.</p>
-<p>We can now match on this message and define how we want to react to each variants. We will again use a <code>match</code> statement to do so:</p>
-<pre><code class="language-rust ignore">    // match on the type of payload within the message, these are variants of the UniqueIdPayload enum
-    match msg.body.payload {
-        // if we get a Generate message, let's reply by crafting an GenerateOk message and sending it through the output interface
-        UniqueIdPayload::Generate =&gt; todo!(),
-        // we are not supposed to receive a GenerateOk message, let's panic when it happens
-        UniqueIdPayload::GenerateOk { .. } =&gt; {
-            panic!(&quot;GenerateOk message shouldn't be received by a node&quot;)
-        }
-    };</code></pre>
-<p>We already know we are not supposed to receive any <code>GenerateOk</code> message, so let's panic with a clear error message when this happens. Keep in mind a panic is a controlled exit of the program, that should be used when we are faced with an unrecoverable error. One could argue we should just ignore the invalid message but panicking on it could help us catch errors if we were to implement our own clients.</p>
-<p>Let's no complete the match arm associated with the <code>Generate</code> message. We know we want to build a <code>GenerateOk</code> message with a new UUID and send it through our output interface:</p>
-<pre><code class="language-rust ignore">    // match on the type of payload within the message, these are variants of the UniqueIdPayload enum
-    match msg.body.payload {
-        // if we get a Generate message, let's reply by crafting an GenerateOk message and sending it through the output interface
-        UniqueIdPayload::Generate =&gt; output.send_msg(Message {
-            src: node_metadata.node_id.clone(),
-            dst: msg.src,
-            body: Body {
-                msg_id: Some(node_metadata.get_next_msg_id()),
-                in_reply_to: msg.body.msg_id,
-                payload: UniqueIdPayload::GenerateOk {
-                    // TODO: let's generate a uuid v4 using the uuid crate
-                    id: todo!(),
-                },
-            },
-        })?,
-        // we are not supposed to receive a GenerateOk message, let's panic when it happens
-        UniqueIdPayload::GenerateOk { .. } =&gt; {
-            panic!(&quot;GenerateOk message shouldn't be received by a node&quot;)
-        }
-    };</code></pre>
-<h3 id="generating-a-uuid"><a class="header" href="#generating-a-uuid">Generating a UUID</a></h3>
-<p>The last missing part is now to generate an UUID. To do so, we will add a new dependency to our project, what is called a <code>crate</code> in Rust lingua: a small unit of shared code. Rust has first class support for easily managing dependencies of your project, through the <code>cargo</code> CLI, using a central crate registry: <a href="https://crates.io">crates.io</a></p>
-<p>The dependency we want to use is <a href="https://crates.io/crates/uuid">uuid</a>. On this page you can see several important information on the crate:</p>
-<ul>
-<li>its version</li>
-<li>some explanations and examples of what it does</li>
-<li>how to install it</li>
-<li>links to the documentation of this crate and its repository</li>
-</ul>
-<p>Let's add this crate to our project:</p>
-<pre><code class="language-bash">cargo add uuid -p distributed_challenges --features v4
-</code></pre>
-<p>This command tells cargo to add the crate <code>uuid</code> to our project, in the package <code>distributed_challenges</code>, with the feature <code>v4</code>. We need to specify which package to install it into since we are working in a cargo workspace, i.e. a collection of several rust packages (c.f. <a href="https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html">the official documentation for more info on workspaces</a>). The <code>--features</code> flag lets us specify which features we want to use. Features are functionalities of the crate that are not shipped by default (often to avoid bloating your binary if you don't explicitly need some things), and that we can opt-in. Here we need to opt-in the <code>v4</code> feature to have the part of the lib responsible for generating UUIDs V4.</p>
-<p>Note that after running this command, you should see this modification reflected in the <code>Cargo.toml</code> file at the root of the package <code>distributed_challenges</code>. Feel free to have a look at the other dependencies we reference there, some are inherited from global workspace dependencies, some are path-based dependencies, etc..</p>
-<p>Now that we have this new dependency, let's use it. A good idea is always to start by looking at its documentation so let's visit <a href="https://docs.rs/uuid/latest/uuid/">https://docs.rs/uuid/latest/uuid/</a>.
-Here we can see the minimal snippet of code to generate a <code>Uuid</code> object:</p>
-<pre><code class="language-rust ignore">use uuid::Uuid;
-
-let id = Uuid::new_v4();</code></pre>
-<p>Remember we ultimately need a String to put in our message, so let's navigate to the doc page of the <code>Uuid</code> structure to see if there are any methods or traits it implements that lets us convert it to a String: <a href="https://docs.rs/uuid/latest/uuid/struct.Uuid.html#impl-ToString-for-Uuid">https://docs.rs/uuid/latest/uuid/struct.Uuid.html#impl-ToString-for-Uuid</a>. We observe that the type implements the <code>ToString</code> trait that exposes the <code>to_string</code> method. Let's use it to complete our code:</p>
-<pre><code class="language-rust ignore">// match on the type of payload within the message, these are variants of the UniqueIdPayload enum
-    match msg.body.payload {
-        // if we get a Generate message, let's reply by crafting an GenerateOk message and sending it through the output interface
-        UniqueIdPayload::Generate =&gt; output.send_msg(Message {
-            src: node_metadata.node_id.clone(),
-            dst: msg.src,
-            body: Body {
-                msg_id: Some(node_metadata.get_next_msg_id()),
-                in_reply_to: msg.body.msg_id,
-                payload: UniqueIdPayload::GenerateOk {
-                    id: Uuid::new_v4().to_string(),
-                },
-            },
-        })?,
-        // we are not supposed to receive a GenerateOk message, let's panic when it happens
-        UniqueIdPayload::GenerateOk { .. } =&gt; {
-            panic!(&quot;GenerateOk message shouldn't be received by a node&quot;)
-        }
-    };</code></pre>
-<h3 id="testing-our-code"><a class="header" href="#testing-our-code">Testing our code</a></h3>
-<p>It's now time to build and test our code to verify if we succeeded. First let's run <code>cargo build</code> to build a debug binary of our program (if you run this from the root of the workspace, it will rebuild all packages that need it, you can always only rebuild the <code>unique_id</code> one using the <code>-p</code> flag of <code>cargo build</code>). This should generate a new binary: <code>target/debug/unique_id</code>.</p>
-<p>Let's now invoke Maelstrom on it to see if we solved the challenge:</p>
-<pre><code class="language-bash">~/maelstrom/maelstrom test -w unique-ids --bin ./target/debug/unique_id --time-limit 30 --rate 1000 --node-count 3 --availability total --nemesis partition
-</code></pre>
-<p>If everything goes well, you should see</p>
-<pre><code class="language-ignore">Everything looks good! ヽ(‘ー`)ノ
-</code></pre>
-<p>Congrats!</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="appendix-a-cargo-cheatsheet"><a class="header" href="#appendix-a-cargo-cheatsheet">Appendix A: Cargo Cheatsheet</a></h1>
-<p><code>cargo</code> is the main interface with rust you will use. This is a CLI tool that exposes all commands to check, build, format, and release your code, and that handles interacting with the compiler <code>rustc</code> for you. Think of it as <code>poetry</code> for python or <code>npm</code> for node.</p>
-<p>Here is a quick cheatsheet of useful commands:</p>
-<pre><code class="language-bash">cargo build # build a debug binary/lib
-cargo run # build and run a debug binary/lib
-cargo {build|run} --release # same but for release binary/lib
-
-cargo test # run all tests of your project
-cargo doc # build a static website serving the documentation of your project
-
-cargo check # check correctness of your code, i.e. does it compile ?
-cargo fmt # run the formatter on your code
-cargo clippy # run the linter on your code, note that this is a superset of cargo check
-
-cargo add &lt;crate_name&gt; # add a crate to your project, i.e. a dependency
-cargo remove &lt;crate_name&gt; # remove a crate from your project
-</code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="01-setup.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
 
+                            <a rel="next" href="03-unique_id.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -717,7 +501,13 @@ cargo remove &lt;crate_name&gt; # remove a crate from your project
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="01-setup.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
 
+                    <a rel="next" href="03-unique_id.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
             </nav>
 
         </div>
@@ -740,11 +530,6 @@ cargo remove &lt;crate_name&gt; # remove a crate from your project
 
         <!-- Custom JS scripts -->
 
-        <script>
-        window.addEventListener('load', function() {
-            window.setTimeout(window.print, 100);
-        });
-        </script>
 
     </div>
     </body>
