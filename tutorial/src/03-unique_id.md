@@ -11,7 +11,7 @@ We will follow the second approach and rely on [UUIDs](https://en.wikipedia.org/
 
 ## Walkthrough
 
-The code will be very similar to the Echo challenge code, so feel free to copy and paste and try it by yourself if you want, the only new concepts will be around importing a library (a crate in rust lingua) to our project, but other than this, you already have all the knowledge to reach the last section of this chapter by yourself.
+The code will be very similar to the Echo challenge code, so feel free to copy and paste and try it by yourself if you want, the only new concepts will be around importing a library (a crate in rust lingua) in our project, but other than this, you already have all the knowledge to reach the last section of this chapter by yourself.
 
 ### Defining the message payloads
 
@@ -74,7 +74,7 @@ fn main() -> anyhow::Result<()> {
     // main loop: for each message we receive through the input interface (with a payload of type UniqueIdPayload)
     for msg in input.iter::<UniqueIdPayload>() {
         // if there was an error getting this message, propagate it (with the ? sigil)
-        let msg = msg.context("While parsing unique_id message")?;
+        let msg = msg?;
 
         todo!()
     }
@@ -160,6 +160,7 @@ Remember we ultimately need a String to put in our message, so let's navigate to
         }
     };
 ```
+Note that this time, instead of creating our `Message` instance manually, we used the utility method `to_response` implement on the `Message` type, which makes our code more concise.
 
 ### Testing our code
 It's now time to build and test our code to verify if we succeeded. First let's run `cargo build` to build a debug binary of our program (if you run this from the root of the workspace, it will rebuild all packages that need it, you can always only rebuild the `unique_id` one using the `-p` flag of `cargo build`). This should generate a new binary: `target/debug/unique_id`.

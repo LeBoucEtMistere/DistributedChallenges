@@ -6,10 +6,10 @@ You can find the challenge here: [https://fly.io/dist-sys/1/](https://fly.io/dis
 
 The goal of this challenge is to discover how to interact with Maelstrom and build a very basic echo server.
 
-You should start by reading the challenge description to get a better sense of how Maelstrom work. Then, this tutorial will take you step-by-step through a Rust solution.
+You should start by reading the challenge description to get a better sense of how Maelstrom works. Then, this tutorial will take you step-by-step through a Rust solution.
 
 ## Forewords: working with Maelstrom
-In the challenge description, you'll note that the author refer to a Go library they provide to easily interact with the Maelstrom nodes and clients. This repo provides you with a similar Rust library, located in the `node_driver` folder. It handles the initialization of your node, the communications over STDIN and STDOUT with Maelstrom, and the serialization and deserialization of the Messages.
+In the challenge description, you'll note that the authors refer to a Go library they provide to easily interact with the Maelstrom nodes and clients. This repo provides you with a similar Rust library, located in the `node_driver` folder. It handles the initialization of your node, the communications over STDIN and STDOUT with Maelstrom, and the serialization and deserialization of the Messages.
 
 We will explore this library as users in the tutorial, you can find the public documentation for this lib at [https://distributed-challenges.vercel.app/](https://distributed-challenges.vercel.app/). If you are getting confident with your Rust skills, I recommend taking some time later to explore this lib and see how it's coded.
 
@@ -70,7 +70,7 @@ pub enum Option<T> {
 ```
 (note that all enum fields have the visibility of the enum so no need to add `pub` to each variant here)
 
-So far this definition looks pretty similar to a classic Python enum, except, the second variant `Some` actually contains data, of type `T` (the generic parameter of the enum). This is what we call a `sum type` or an `algebraic type`: an enum that can contain different data types based on the variant. In our case, we use an `Option<usize>` which means that the data contained in the `Some` variant will be of type `usize` (a `usize` is an unsigned integer of the size of a pointer on your system, most likely 64 bits on a 64 bits system), while the `None` variant contains nothing.
+So far this definition looks pretty similar to a classic Python enum, except, the second variant `Some` actually contains data, of type `T` (the generic parameter of the enum). This is what we call a `sum type` or an `algebraic type`: an enum that can contain different data types based on the variant. In our case, we use an `Option<usize>` which means that the data contained in the `Some` variant will be of type `usize` (a `usize` is an unsigned integer of the size of a pointer on your system, most likely 64 bits on a 64 bits system, for more details on basic scalar types, see [this](https://google.github.io/comprehensive-rust/basic-syntax/scalar-types.html)), while the `None` variant contains nothing.
 
 Algebraic types are one of the killer features of Rust, for more details, refer to the [official rust book](https://doc.rust-lang.org/book/ch06-00-enums.html). What's really important is that to get data out of your `Option` instance, you NEED to check if it's `None` or `Some` before, and the compiler will force you to do so. There is no way around this, and this prevents developers from accidentally forgetting that the result they deal with can be None. Python programmers will hopefully quickly realize how powerful this is, and how much safety it brings to the programs.
 
@@ -103,7 +103,8 @@ enum EchoPayload {
 We have two variants, one for each message, and each of them contains a string field called `echo` that will represent the data we are asked to echo back. (The `///` defines docstring of the fields, while `//` are regular non-documenting comments)
 
 Let's make our enum a little bit easier to work with by adding some useful behaviors to it: `Debug` and `Clone`. The first one will allow us to print the enum content to debug it, and the second will make it so we can clone instances of the enum if we need to.
-In fact, these "behaviors" are what we call in Rust `traits`. A trait defines functions, and can be implemented on types. This is in a way the interfaces of Rust, although it is much more powerful than this.
+In fact, these "behaviors" are what we call in Rust `traits` (see [the official book](https://doc.rust-lang.org/book/ch10-02-traits.html) on this). A trait defines functionality a particular type has and can share with other types. We can use traits to define shared behavior in an abstract way. This is in a way the interfaces of Rust, although it is much more powerful than this.
+
 The `Debug` and `Clone` traits are provided by the Rust standard library: [https://doc.rust-lang.org/std/clone/trait.Clone.html](https://doc.rust-lang.org/std/clone/trait.Clone.html) and [https://doc.rust-lang.org/std/fmt/trait.Debug.html](https://doc.rust-lang.org/std/fmt/trait.Debug.html). We could manually implement it for our type if we wanted to do fancy things, but the compiler is smart enough to infer basic implementations of these traits for us and all we have to do to get it is to add this line on top of our enum:
 ```rust,ignore
 /// Defines the payload we want to send to clients in the echo challenge
@@ -115,7 +116,7 @@ enum EchoPayload {
     EchoOk { echo: String },
 }
 ```
-This tells the Rust compiler to generate an implementation of both the `Clone` and `Debug` traits for the `EchoPayload` enum, this is what we call "deriving traits".
+This tells the Rust compiler to generate an implementation of both the `Clone` and `Debug` traits for the `EchoPayload` enum, this is what we call "deriving traits". Here this work because Rust already ships a default implementation of these traits for all the types contained in our enumeration (`String` in this case).
 
 ### Implementing the main loop of our server
 
@@ -139,7 +140,7 @@ There's a bunch of new concepts here:
 - we define variables using the `let` keyword.
 - we call the `init` class method of the `Maelstrom` struct using the `Maelstrom::init()` syntax.
 - we use the `?` sigil to bubble up errors returned by the `init()` method to the output of the `main` function (you now see why we return a Result over the null type `()` as our main return type). If you look at the signature of the `init()` method in the documentation, you'll see it returns a `Result<(NodeMetadata, InputInterface, OutputInterface)>` and not just the tuple `(NodeMetadata, InputInterface, OutputInterface)`, a `Result` is also a sum type, very similar to `Option<T>`, which allows us to denote if a function errored out or if it returned a result.
-- statements finish with a `;` while expressions don't, and if the last line of a function is an expression, it is returned automatically. You can also use the statement syntax `return Ok(());` but it is less idiomatic.
+- statements finish with a `;` while expressions don't, and if the last line of a function is an expression, it is returned automatically. You can also use the statement syntax `return Ok(());` but it is less idiomatic. For more details on expressions vs. statements, see [this article](https://web.mit.edu/rust-lang_v1.25/arch/amd64_ubuntu1404/share/doc/rust/html/book/first-edition/functions.html#expressions-vs-statements).
 
 
 You'll see that if you remove the `?` sigil for instance, running `cargo build` or `cargo check` will give you a clear compiler error that the type don't match and that you need to ensure the result returned by the `init` method is not an error. This is what the `?` sigil does, it bubbles up any error and if there is none, it "unwrap" the data out of the Result type. I encourage you to try stuff and read compiler errors, they have been designed to be as informative as possible and explain properly the source of your issue and how to solve it.
@@ -200,6 +201,10 @@ Looking at the error message, we can read the following:
 
 ```ignore
 the trait bound `for<'de> EchoPayload: serde::de::Deserialize<'de>` is not satisfied
+   |
+17 |     for msg in input.iter::<EchoPayload>() {}
+   |                             ^^^^^^^^^^^ the trait `for<'de> serde::de::Deserialize<'de>` is not implemented for `EchoPayload`
+   |
 ...
 note: required by a bound in `InputInterface::iter`
 ...

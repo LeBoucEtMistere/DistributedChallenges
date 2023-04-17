@@ -9,13 +9,20 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
 This repo builds on the latest stable version of Rust, `Rust 1.68`.
-When installing rustup, it will prompt you to install the latest stable Rust version. If you already have rust installed, run `rustup upgrade` to get the lastest version.
+When installing rustup, it will prompt you to install the latest stable Rust version. If you already have rust installed, run `rustup upgrade` to get the latest version.
 
 Note that as stated by the installer, you will need to export an env variable in your shell .rc file after the install process, and restart your shell to pick it up.
 
 You can sanity check your installation by running `cargo --version`, more on cargo later.
 
 You will also need to install the MacOS vendored LLVM compiler (it's possible you already have it, but it tends to disappear after a major MacOS upgrade): run `xcode-select install`.
+
+
+I also highly recommend to export these two env variables in your shell:
+```sh
+export CARGO_NET_GIT_FETCH_WITH_CLI=true  # fixes issues with git that tend to happen with ssh
+export CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse  # makes git operations a lot faster, requires latest rust version
+```
 
 ### Setting up IDE
 
@@ -25,7 +32,7 @@ Note that both `rustfmt` and `clippy` ship with the default Rust toolchain insta
 
 To get `rust-analyzer`, we will install the VSCode integration called `rust-lang.rust-analyzer`. This extension will handle itself the process of downloading the binaries for `rust-analyzer` transparently.
 
-I then recommand to alter your VSCode config (`Cmd+,`) and add the following keys:
+I then recommend to alter your VSCode config (`Cmd+,`) and add the following keys:
 ```json
 {
     "editor.formatOnSave": true,
@@ -33,7 +40,7 @@ I then recommand to alter your VSCode config (`Cmd+,`) and add the following key
 }
 ```
 
-Here are some other additional extensions that will make your developper experience smoother:
+Here are some other additional extensions that will make your developer experience smoother:
 - `serayuzgur.crates` Augmented functionalities to manage the crates used in your project
 - `tamasfe.even-better-toml` LSP for the TOML language which is often used with Rust
 - `usernamehw.errorlens` Inline errors in your code, making it easier to see them in context
@@ -55,7 +62,7 @@ group_imports = "StdExternalCrate"
 ```
 
 ## Maelstrom setup
-The challenges we will solve are built on top of a platform called [Maelstrom](https://github.com/jepsen-io/maelstrom). This platform lets you build out a "node" in your distributed system and Maelstrom will handle the routing of messages between the those nodes. This lets Maelstrom inject failures and perform verification checks based on the consistency guarantees required by each challenge. You can see it as a simulator and test bench for developping distributed systems.
+The challenges we will solve are built on top of a platform called [Maelstrom](https://github.com/jepsen-io/maelstrom). This platform lets you build out a "node" in your distributed system and Maelstrom will handle the routing of messages between the those nodes. This lets Maelstrom inject failures and perform verification checks based on the consistency guarantees required by each challenge. You can see it as a simulator and test bench for developing distributed systems.
 
 Maelstrom is built in Clojure and therefore requires the Java JDK to run. It also provides some plotting and graphing utilities which rely on Graphviz & gnuplot. You can install all the required dependencies with this command:
 ```bash
