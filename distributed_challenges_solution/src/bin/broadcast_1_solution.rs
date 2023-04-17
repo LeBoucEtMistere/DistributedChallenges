@@ -22,6 +22,7 @@ enum BroadcastPayload {
     },
 }
 
+/// This struct holds the internal state of our node
 struct State {
     pub node_metadata: NodeMetadata,
     pub messages: HashSet<usize>,
@@ -37,7 +38,7 @@ fn main() -> anyhow::Result<()> {
     let mut state = State {
         messages: HashSet::new(),
         node_metadata,
-        topology: None,
+        topology: None, // we don't know the topology yet
     };
 
     // main loop: for each message we receive through the input interface (with a payload of type BroadcastPayload)

@@ -30,6 +30,7 @@ enum BroadcastPayload {
     },
 }
 
+/// This struct holds the internal state of our node
 struct State {
     pub node_metadata: NodeMetadata,
     pub messages: HashSet<usize>,
