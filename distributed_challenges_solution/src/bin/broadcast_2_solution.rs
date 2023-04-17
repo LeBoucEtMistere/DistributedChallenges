@@ -4,7 +4,7 @@ use std::{
 };
 
 use anyhow::Context;
-use node_driver::{Body, InputInterface, Maelstrom, Message, NodeMetadata};
+use node_driver::{Body, InputInterface, Maelstrom, Message};
 use serde::{Deserialize, Serialize};
 
 /// Defines the payload we want to send to clients in the broadcast challenge
@@ -32,7 +32,6 @@ enum BroadcastPayload {
 
 /// This struct holds the internal state of our node
 struct State {
-    pub node_metadata: NodeMetadata,
     pub messages: HashSet<usize>,
     /// topology is optional since we don't have it when we construct State in the first place
     pub topology: Option<HashMap<String, Vec<String>>>,
@@ -52,12 +51,11 @@ fn main() -> anyhow::Result<()> {
     // init our node by getting its metadata and an output and input interface to communicate
     // here we drop the input interface as soon as we get it to release the lock before opening a
     // new one in a separate thread.
-    let (node_metadata, _, mut output) = Maelstrom::init()?;
+    let (mut node_metadata, _, mut output) = Maelstrom::init()?;
 
     // init the state
     let mut state = State {
         messages: HashSet::new(),
-        node_metadata,
         topology: None,
     };
 
@@ -103,13 +101,13 @@ fn main() -> anyhow::Result<()> {
             Event::TimeToGossip => {
                 // it's time to gossip, let's send messages to all nodes within our reach
                 if let Some(topology) = state.topology.as_ref() {
-                    for n in topology.get(&state.node_metadata.node_id).context(format!(
+                    for n in topology.get(&node_metadata.node_id).context(format!(
                         "Node {} should appear in the topology",
-                        state.node_metadata.node_id
+                        node_metadata.node_id
                     ))? {
                         // for now we send the full list of messages we know, which is suboptimal
                         output.send_msg(Message {
-                            src: state.node_metadata.node_id.clone(),
+                            src: node_metadata.node_id.clone(),
                             dst: n.clone(),
                             body: Body {
                                 msg_id: None,
@@ -125,54 +123,39 @@ fn main() -> anyhow::Result<()> {
             }
             Event::MessageReceived(msg) => {
                 // match on the type of payload within the message, these are variants of the BroadcastPayload enum
-                match msg.body.payload {
+                match &msg.body.payload {
                     BroadcastPayload::Gossip { known } => {
                         // we received a gossip message from another node, let's update our known data
-                        state.messages = state.messages.union(&known).copied().collect();
+                        state.messages = state.messages.union(known).copied().collect();
                     }
                     BroadcastPayload::Topology { topology } => {
-                        state.topology = Some(topology);
-                        output.send_msg(Message {
-                            src: state.node_metadata.node_id.clone(),
-                            dst: msg.src,
-                            body: Body {
-                                msg_id: Some(state.node_metadata.get_next_msg_id()),
-                                in_reply_to: msg.body.msg_id,
-                                payload: BroadcastPayload::TopologyOk,
-                            },
-                        })?
+                        state.topology = Some(topology.clone());
+                        output.send_msg(msg.to_response(
+                            Some(node_metadata.get_next_msg_id()),
+                            BroadcastPayload::TopologyOk,
+                        ))?
                     }
                     // we are not supposed to receive a TopologyOk message, let's panic when it happens
                     BroadcastPayload::TopologyOk => {
                         panic!("TopologyOk message shouldn't be received by a node")
                     }
                     BroadcastPayload::Broadcast { message } => {
-                        state.messages.insert(message);
-                        output.send_msg(Message {
-                            src: state.node_metadata.node_id.clone(),
-                            dst: msg.src,
-                            body: Body {
-                                msg_id: Some(state.node_metadata.get_next_msg_id()),
-                                in_reply_to: msg.body.msg_id,
-                                payload: BroadcastPayload::BroadcastOk,
-                            },
-                        })?
+                        state.messages.insert(*message);
+                        output.send_msg(msg.to_response(
+                            Some(node_metadata.get_next_msg_id()),
+                            BroadcastPayload::BroadcastOk,
+                        ))?
                     }
                     // we are not supposed to receive a BroadcastOk message, let's panic when it happens
                     BroadcastPayload::BroadcastOk { .. } => {
                         panic!("BroadcastOk message shouldn't be received by a node")
                     }
-                    BroadcastPayload::Read => output.send_msg(Message {
-                        src: state.node_metadata.node_id.clone(),
-                        dst: msg.src,
-                        body: Body {
-                            msg_id: Some(state.node_metadata.get_next_msg_id()),
-                            in_reply_to: msg.body.msg_id,
-                            payload: BroadcastPayload::ReadOk {
-                                messages: state.messages.clone(),
-                            },
+                    BroadcastPayload::Read => output.send_msg(msg.to_response(
+                        Some(node_metadata.get_next_msg_id()),
+                        BroadcastPayload::ReadOk {
+                            messages: state.messages.clone(),
                         },
-                    })?,
+                    ))?,
                     // we are not supposed to receive a ReadOk message, let's panic when it happens
                     BroadcastPayload::ReadOk { .. } => {
                         panic!("ReadOk message shouldn't be received by a node")

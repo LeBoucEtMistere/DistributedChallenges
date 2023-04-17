@@ -48,6 +48,24 @@ pub struct Message<P> {
     pub body: Body<P>,
 }
 
+impl<P> Message<P> {
+    /// Helper to build a response message from an incoming one.
+    ///
+    /// This will swap the original `src` and `dst` fields, and set the `in_reply_to` field to the
+    /// content of the `msg_id` field in the original message.
+    pub fn to_response(self, msg_id: Option<usize>, payload: P) -> Self {
+        Message {
+            src: self.dst,
+            dst: self.src,
+            body: Body {
+                msg_id,
+                in_reply_to: self.body.msg_id,
+                payload,
+            },
+        }
+    }
+}
+
 /// A container for the body of a [`Message`].
 ///
 /// This defines the optional fields specified in [the protocol](https://github.com/jepsen-io/maelstrom/blob/main/doc/protocol.md) but the `type` field

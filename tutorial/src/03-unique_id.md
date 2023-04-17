@@ -103,18 +103,13 @@ Let's no complete the match arm associated with the `Generate` message. We know 
     // match on the type of payload within the message, these are variants of the UniqueIdPayload enum
     match msg.body.payload {
         // if we get a Generate message, let's reply by crafting an GenerateOk message and sending it through the output interface
-        UniqueIdPayload::Generate => output.send_msg(Message {
-            src: node_metadata.node_id.clone(),
-            dst: msg.src,
-            body: Body {
-                msg_id: Some(node_metadata.get_next_msg_id()),
-                in_reply_to: msg.body.msg_id,
-                payload: UniqueIdPayload::GenerateOk {
-                    // TODO: let's generate a uuid v4 using the uuid crate
+        UniqueIdPayload::Generate => output.send_msg(msg.to_response(
+                Some(node_metadata.get_next_msg_id()), // obtain the next message id
+                UniqueIdPayload::GenerateOk {
+                    // let's generate a uuid v4 using the uuid crate
                     id: todo!(),
                 },
-            },
-        })?,
+            ))?,
         // we are not supposed to receive a GenerateOk message, let's panic when it happens
         UniqueIdPayload::GenerateOk { .. } => {
             panic!("GenerateOk message shouldn't be received by a node")
@@ -152,17 +147,13 @@ Remember we ultimately need a String to put in our message, so let's navigate to
 // match on the type of payload within the message, these are variants of the UniqueIdPayload enum
     match msg.body.payload {
         // if we get a Generate message, let's reply by crafting an GenerateOk message and sending it through the output interface
-        UniqueIdPayload::Generate => output.send_msg(Message {
-            src: node_metadata.node_id.clone(),
-            dst: msg.src,
-            body: Body {
-                msg_id: Some(node_metadata.get_next_msg_id()),
-                in_reply_to: msg.body.msg_id,
-                payload: UniqueIdPayload::GenerateOk {
-                    id: Uuid::new_v4().to_string(),
+        UniqueIdPayload::Generate => output.send_msg(msg.to_response(
+                Some(node_metadata.get_next_msg_id()), // obtain the next message id
+                UniqueIdPayload::GenerateOk {
+                    // let's generate a uuid v4 using the uuid crate
+                    id: uuid::Uuid::new_v4().to_string(),
                 },
-            },
-        })?,
+            ))?,
         // we are not supposed to receive a GenerateOk message, let's panic when it happens
         UniqueIdPayload::GenerateOk { .. } => {
             panic!("GenerateOk message shouldn't be received by a node")
