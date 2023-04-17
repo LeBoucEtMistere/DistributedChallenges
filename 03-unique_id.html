@@ -154,7 +154,7 @@
 </ul>
 <p>We will follow the second approach and rely on <a href="https://en.wikipedia.org/wiki/Universally_unique_identifier">UUIDs</a> generation algorithms, and more specifically UUIDs V4.</p>
 <h2 id="walkthrough"><a class="header" href="#walkthrough">Walkthrough</a></h2>
-<p>The code will be very similar to the Echo challenge code, so feel free to copy and paste and try it by yourself if you want, the only new concepts will be around importing a library (a crate in rust lingua) to our project, but other than this, you already have all the knowledge to reach the last section of this chapter by yourself.</p>
+<p>The code will be very similar to the Echo challenge code, so feel free to copy and paste and try it by yourself if you want, the only new concepts will be around importing a library (a crate in rust lingua) in our project, but other than this, you already have all the knowledge to reach the last section of this chapter by yourself.</p>
 <h3 id="defining-the-message-payloads"><a class="header" href="#defining-the-message-payloads">Defining the message payloads</a></h3>
 <p>Let's start by defining the messages we want to receive and send, based on the description provided by the challenge:
 We have a Generate request with the following body</p>
@@ -198,7 +198,7 @@ As in the previous part, we need to start by initializing our Maelstrom node (do
     // main loop: for each message we receive through the input interface (with a payload of type UniqueIdPayload)
     for msg in input.iter::&lt;UniqueIdPayload&gt;() {
         // if there was an error getting this message, propagate it (with the ? sigil)
-        let msg = msg.context(&quot;While parsing unique_id message&quot;)?;
+        let msg = msg?;
 
         todo!()
     }
@@ -219,18 +219,13 @@ As in the previous part, we need to start by initializing our Maelstrom node (do
 <pre><code class="language-rust ignore">    // match on the type of payload within the message, these are variants of the UniqueIdPayload enum
     match msg.body.payload {
         // if we get a Generate message, let's reply by crafting an GenerateOk message and sending it through the output interface
-        UniqueIdPayload::Generate =&gt; output.send_msg(Message {
-            src: node_metadata.node_id.clone(),
-            dst: msg.src,
-            body: Body {
-                msg_id: Some(node_metadata.get_next_msg_id()),
-                in_reply_to: msg.body.msg_id,
-                payload: UniqueIdPayload::GenerateOk {
-                    // TODO: let's generate a uuid v4 using the uuid crate
+        UniqueIdPayload::Generate =&gt; output.send_msg(msg.to_response(
+                Some(node_metadata.get_next_msg_id()), // obtain the next message id
+                UniqueIdPayload::GenerateOk {
+                    // let's generate a uuid v4 using the uuid crate
                     id: todo!(),
                 },
-            },
-        })?,
+            ))?,
         // we are not supposed to receive a GenerateOk message, let's panic when it happens
         UniqueIdPayload::GenerateOk { .. } =&gt; {
             panic!(&quot;GenerateOk message shouldn't be received by a node&quot;)
@@ -259,22 +254,19 @@ let id = Uuid::new_v4();</code></pre>
 <pre><code class="language-rust ignore">// match on the type of payload within the message, these are variants of the UniqueIdPayload enum
     match msg.body.payload {
         // if we get a Generate message, let's reply by crafting an GenerateOk message and sending it through the output interface
-        UniqueIdPayload::Generate =&gt; output.send_msg(Message {
-            src: node_metadata.node_id.clone(),
-            dst: msg.src,
-            body: Body {
-                msg_id: Some(node_metadata.get_next_msg_id()),
-                in_reply_to: msg.body.msg_id,
-                payload: UniqueIdPayload::GenerateOk {
-                    id: Uuid::new_v4().to_string(),
+        UniqueIdPayload::Generate =&gt; output.send_msg(msg.to_response(
+                Some(node_metadata.get_next_msg_id()), // obtain the next message id
+                UniqueIdPayload::GenerateOk {
+                    // let's generate a uuid v4 using the uuid crate
+                    id: uuid::Uuid::new_v4().to_string(),
                 },
-            },
-        })?,
+            ))?,
         // we are not supposed to receive a GenerateOk message, let's panic when it happens
         UniqueIdPayload::GenerateOk { .. } =&gt; {
             panic!(&quot;GenerateOk message shouldn't be received by a node&quot;)
         }
     };</code></pre>
+<p>Note that this time, instead of creating our <code>Message</code> instance manually, we used the utility method <code>to_response</code> implement on the <code>Message</code> type, which makes our code more concise.</p>
 <h3 id="testing-our-code"><a class="header" href="#testing-our-code">Testing our code</a></h3>
 <p>It's now time to build and test our code to verify if we succeeded. First let's run <code>cargo build</code> to build a debug binary of our program (if you run this from the root of the workspace, it will rebuild all packages that need it, you can always only rebuild the <code>unique_id</code> one using the <code>-p</code> flag of <code>cargo build</code>). This should generate a new binary: <code>target/debug/unique_id</code>.</p>
 <p>Let's now invoke Maelstrom on it to see if we solved the challenge:</p>

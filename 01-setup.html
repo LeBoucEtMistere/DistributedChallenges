@@ -152,21 +152,25 @@
 <pre><code class="language-bash">curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 </code></pre>
 <p>This repo builds on the latest stable version of Rust, <code>Rust 1.68</code>.
-When installing rustup, it will prompt you to install the latest stable Rust version. If you already have rust installed, run <code>rustup upgrade</code> to get the lastest version.</p>
+When installing rustup, it will prompt you to install the latest stable Rust version. If you already have rust installed, run <code>rustup upgrade</code> to get the latest version.</p>
 <p>Note that as stated by the installer, you will need to export an env variable in your shell .rc file after the install process, and restart your shell to pick it up.</p>
 <p>You can sanity check your installation by running <code>cargo --version</code>, more on cargo later.</p>
 <p>You will also need to install the MacOS vendored LLVM compiler (it's possible you already have it, but it tends to disappear after a major MacOS upgrade): run <code>xcode-select install</code>.</p>
+<p>I also highly recommend to export these two env variables in your shell:</p>
+<pre><code class="language-sh">export CARGO_NET_GIT_FETCH_WITH_CLI=true  # fixes issues with git that tend to happen with ssh
+export CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse  # makes git operations a lot faster, requires latest rust version
+</code></pre>
 <h3 id="setting-up-ide"><a class="header" href="#setting-up-ide">Setting up IDE</a></h3>
 <p>I recommend VSCode for the easiest dev experience possible. We will configure it to leverage <code>rust-analyzer</code>, the official LSP server for Rust, <code>clippy</code> the official linter for Rust and <code>rustfmt</code> the official formatter for Rust.</p>
 <p>Note that both <code>rustfmt</code> and <code>clippy</code> ship with the default Rust toolchain install so you don't have to do anything to get them.</p>
 <p>To get <code>rust-analyzer</code>, we will install the VSCode integration called <code>rust-lang.rust-analyzer</code>. This extension will handle itself the process of downloading the binaries for <code>rust-analyzer</code> transparently.</p>
-<p>I then recommand to alter your VSCode config (<code>Cmd+,</code>) and add the following keys:</p>
+<p>I then recommend to alter your VSCode config (<code>Cmd+,</code>) and add the following keys:</p>
 <pre><code class="language-json">{
     &quot;editor.formatOnSave&quot;: true,
     &quot;rust-analyzer.checkOnSave.command&quot;: &quot;clippy&quot;,
 }
 </code></pre>
-<p>Here are some other additional extensions that will make your developper experience smoother:</p>
+<p>Here are some other additional extensions that will make your developer experience smoother:</p>
 <ul>
 <li><code>serayuzgur.crates</code> Augmented functionalities to manage the crates used in your project</li>
 <li><code>tamasfe.even-better-toml</code> LSP for the TOML language which is often used with Rust</li>
@@ -185,7 +189,7 @@ When installing rustup, it will prompt you to install the latest stable Rust ver
 <pre><code class="language-toml">group_imports = &quot;StdExternalCrate&quot;
 </code></pre>
 <h2 id="maelstrom-setup"><a class="header" href="#maelstrom-setup">Maelstrom setup</a></h2>
-<p>The challenges we will solve are built on top of a platform called <a href="https://github.com/jepsen-io/maelstrom">Maelstrom</a>. This platform lets you build out a &quot;node&quot; in your distributed system and Maelstrom will handle the routing of messages between the those nodes. This lets Maelstrom inject failures and perform verification checks based on the consistency guarantees required by each challenge. You can see it as a simulator and test bench for developping distributed systems.</p>
+<p>The challenges we will solve are built on top of a platform called <a href="https://github.com/jepsen-io/maelstrom">Maelstrom</a>. This platform lets you build out a &quot;node&quot; in your distributed system and Maelstrom will handle the routing of messages between the those nodes. This lets Maelstrom inject failures and perform verification checks based on the consistency guarantees required by each challenge. You can see it as a simulator and test bench for developing distributed systems.</p>
 <p>Maelstrom is built in Clojure and therefore requires the Java JDK to run. It also provides some plotting and graphing utilities which rely on Graphviz &amp; gnuplot. You can install all the required dependencies with this command:</p>
 <pre><code class="language-bash">brew install openjdk graphviz gnuplot
 </code></pre>
