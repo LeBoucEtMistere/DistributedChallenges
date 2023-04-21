@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Appendix A: Cargo Cheatsheet - Rust Workshop Tutorial: Distributed Systems Challenges</title>
+        <title>Chapter 4a: Single node broadcast - Rust Workshop Tutorial: Distributed Systems Challenges</title>
 
 
         <!-- Custom HTML head -->
@@ -83,7 +83,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="00-intro.html">Introduction</a></li><li class="chapter-item expanded "><a href="01-setup.html"><strong aria-hidden="true">1.</strong> Chapter 1: Setup</a></li><li class="chapter-item expanded "><a href="02-echo.html"><strong aria-hidden="true">2.</strong> Chapter 2: The Echo challenge</a></li><li class="chapter-item expanded "><a href="03-unique_id.html"><strong aria-hidden="true">3.</strong> Chapter 3: The Unique Id challenge</a></li><li class="chapter-item expanded "><a href="04-broadcast.html"><strong aria-hidden="true">4.</strong> Chapter 4: The Broadcast challenge</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="04a-broadcast.html"><strong aria-hidden="true">4.1.</strong> Chapter 4a: Single node broadcast</a></li><li class="chapter-item expanded "><a href="04b-broadcast.html"><strong aria-hidden="true">4.2.</strong> Chapter 4b: Multi node broadcast</a></li></ol></li><li class="chapter-item expanded "><a href="A-cargo.html" class="active">Appendix A: Cargo Cheatsheet</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="00-intro.html">Introduction</a></li><li class="chapter-item expanded "><a href="01-setup.html"><strong aria-hidden="true">1.</strong> Chapter 1: Setup</a></li><li class="chapter-item expanded "><a href="02-echo.html"><strong aria-hidden="true">2.</strong> Chapter 2: The Echo challenge</a></li><li class="chapter-item expanded "><a href="03-unique_id.html"><strong aria-hidden="true">3.</strong> Chapter 3: The Unique Id challenge</a></li><li class="chapter-item expanded "><a href="04-broadcast.html"><strong aria-hidden="true">4.</strong> Chapter 4: The Broadcast challenge</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="04a-broadcast.html" class="active"><strong aria-hidden="true">4.1.</strong> Chapter 4a: Single node broadcast</a></li><li class="chapter-item expanded "><a href="04b-broadcast.html"><strong aria-hidden="true">4.2.</strong> Chapter 4b: Multi node broadcast</a></li></ol></li><li class="chapter-item expanded "><a href="A-cargo.html">Appendix A: Cargo Cheatsheet</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -144,32 +144,31 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="appendix-a-cargo-cheatsheet"><a class="header" href="#appendix-a-cargo-cheatsheet">Appendix A: Cargo Cheatsheet</a></h1>
-<p><code>cargo</code> is the main interface with rust you will use. This is a CLI tool that exposes all commands to check, build, format, and release your code, and that handles interacting with the compiler <code>rustc</code> for you. Think of it as <code>poetry</code> for python or <code>npm</code> for node.</p>
-<p>Here is a quick cheatsheet of useful commands:</p>
-<pre><code class="language-bash">cargo build # build a debug binary/lib
-cargo run # build and run a debug binary/lib
-cargo {build|run} --release # same but for release binary/lib
-
-cargo test # run all tests of your project
-cargo doc # build a static website serving the documentation of your project
-
-cargo check # check correctness of your code, i.e. does it compile ?
-cargo fmt # run the formatter on your code
-cargo clippy # run the linter on your code, note that this is a superset of cargo check
-
-cargo add &lt;crate_name&gt; # add a crate to your project, i.e. a dependency
-cargo remove &lt;crate_name&gt; # remove a crate from your project
+                        <h1 id="chapter-4a-single-node-broadcast"><a class="header" href="#chapter-4a-single-node-broadcast">Chapter 4a: Single node broadcast</a></h1>
+<p>You can find the challenge here: <a href="https://fly.io/dist-sys/3a/">https://fly.io/dist-sys/3a/</a></p>
+<p>In this first part of the broadcast challenge, we will make a system with a single node, so that we don't have to worry about inter-node communication and we can just focus on the interfaces to communicate with clients.</p>
+<p>This first part is very similar to the previous exercises and doesn't involve anything new so we won't detail the code here. However we will discuss some interesting points, and if you need you can always check the solution code in the repo for a working implementation.</p>
+<p>The test command should be </p>
+<pre><code class="language-bash">~/maelstrom/maelstrom test -w broadcast --bin target/debug/broadcast_1 --node-count 1 --time-limit 20 --rate 10
 </code></pre>
+<h2 id="the-messages"><a class="header" href="#the-messages">The messages</a></h2>
+<p>Once again we are presented with a list of messages our application needs to know about. <code>read</code> and <code>broadcast</code> are pretty straightforward, but <code>topology</code> is a bit different. </p>
+<p>This <code>topology</code> message is sent once to each node in the network at the start by maelstrom and suggests a topology for each node to use. A topology is a graph describing which nodes connect with which other nodes. In the real world, this would be dictated by communication latencies, network hops, or other parameters. In fact, there exists a bunch of strategies to define the optimal topology to ensure the best performances. In the context of Maelstrom, every node can speak with every node and you are not constrained by the topology that your node receive, you can perfectly ignore it or change it. Today we will actually use it and each node will act as if it only knows about the nodes in the topology it receives.</p>
+<p>Note that you need to acknowledge the topology message as well.</p>
+<p>In this first part, since there is only one node in the network, we won't use the topology, but to prepare for part 2, you will probably need to store it somewhere so that the node can reference it during the rest of its lifespan.</p>
+<p>Since you will also need to keep track of all the messages the node knows about, I suggest you implement a structure dedicated to storing the state of the node.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="04b-broadcast.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="04-broadcast.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
+                            <a rel="next" href="04b-broadcast.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -177,10 +176,13 @@ cargo remove &lt;crate_name&gt; # remove a crate from your project
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="04b-broadcast.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="04-broadcast.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
+                    <a rel="next" href="04b-broadcast.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
             </nav>
 
         </div>

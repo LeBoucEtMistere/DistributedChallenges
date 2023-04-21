@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Appendix A: Cargo Cheatsheet - Rust Workshop Tutorial: Distributed Systems Challenges</title>
+        <title>Chapter 4: The Broadcast challenge - Rust Workshop Tutorial: Distributed Systems Challenges</title>
 
 
         <!-- Custom HTML head -->
@@ -83,7 +83,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="00-intro.html">Introduction</a></li><li class="chapter-item expanded "><a href="01-setup.html"><strong aria-hidden="true">1.</strong> Chapter 1: Setup</a></li><li class="chapter-item expanded "><a href="02-echo.html"><strong aria-hidden="true">2.</strong> Chapter 2: The Echo challenge</a></li><li class="chapter-item expanded "><a href="03-unique_id.html"><strong aria-hidden="true">3.</strong> Chapter 3: The Unique Id challenge</a></li><li class="chapter-item expanded "><a href="04-broadcast.html"><strong aria-hidden="true">4.</strong> Chapter 4: The Broadcast challenge</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="04a-broadcast.html"><strong aria-hidden="true">4.1.</strong> Chapter 4a: Single node broadcast</a></li><li class="chapter-item expanded "><a href="04b-broadcast.html"><strong aria-hidden="true">4.2.</strong> Chapter 4b: Multi node broadcast</a></li></ol></li><li class="chapter-item expanded "><a href="A-cargo.html" class="active">Appendix A: Cargo Cheatsheet</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="00-intro.html">Introduction</a></li><li class="chapter-item expanded "><a href="01-setup.html"><strong aria-hidden="true">1.</strong> Chapter 1: Setup</a></li><li class="chapter-item expanded "><a href="02-echo.html"><strong aria-hidden="true">2.</strong> Chapter 2: The Echo challenge</a></li><li class="chapter-item expanded "><a href="03-unique_id.html"><strong aria-hidden="true">3.</strong> Chapter 3: The Unique Id challenge</a></li><li class="chapter-item expanded "><a href="04-broadcast.html" class="active"><strong aria-hidden="true">4.</strong> Chapter 4: The Broadcast challenge</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="04a-broadcast.html"><strong aria-hidden="true">4.1.</strong> Chapter 4a: Single node broadcast</a></li><li class="chapter-item expanded "><a href="04b-broadcast.html"><strong aria-hidden="true">4.2.</strong> Chapter 4b: Multi node broadcast</a></li></ol></li><li class="chapter-item expanded "><a href="A-cargo.html">Appendix A: Cargo Cheatsheet</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -144,32 +144,21 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="appendix-a-cargo-cheatsheet"><a class="header" href="#appendix-a-cargo-cheatsheet">Appendix A: Cargo Cheatsheet</a></h1>
-<p><code>cargo</code> is the main interface with rust you will use. This is a CLI tool that exposes all commands to check, build, format, and release your code, and that handles interacting with the compiler <code>rustc</code> for you. Think of it as <code>poetry</code> for python or <code>npm</code> for node.</p>
-<p>Here is a quick cheatsheet of useful commands:</p>
-<pre><code class="language-bash">cargo build # build a debug binary/lib
-cargo run # build and run a debug binary/lib
-cargo {build|run} --release # same but for release binary/lib
-
-cargo test # run all tests of your project
-cargo doc # build a static website serving the documentation of your project
-
-cargo check # check correctness of your code, i.e. does it compile ?
-cargo fmt # run the formatter on your code
-cargo clippy # run the linter on your code, note that this is a superset of cargo check
-
-cargo add &lt;crate_name&gt; # add a crate to your project, i.e. a dependency
-cargo remove &lt;crate_name&gt; # remove a crate from your project
-</code></pre>
+                        <h1 id="chapter-4-the-broadcast-challenge"><a class="header" href="#chapter-4-the-broadcast-challenge">Chapter 4: The Broadcast challenge</a></h1>
+<p>You can find the challenge here: <a href="https://fly.io/dist-sys/3a/">https://fly.io/dist-sys/3a/</a></p>
+<p>The goal of this challenge is to build a system that supports broadcasting information across its nodes. This is the first task that will require cross-node communication and because it introduces a lot of complexity, it is divided in several parts.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="04b-broadcast.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="03-unique_id.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
+                            <a rel="next" href="04a-broadcast.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -177,10 +166,13 @@ cargo remove &lt;crate_name&gt; # remove a crate from your project
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="04b-broadcast.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="03-unique_id.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
+                    <a rel="next" href="04a-broadcast.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
             </nav>
 
         </div>
