@@ -166,7 +166,7 @@ fn main() -> anyhow::Result<()> {
     }
 
     // let's join on both threads for proper exit
-    ih.join().expect("input thread got poisoned");
-    gh.join().expect("gossip thread got poisoned");
+    ih.join().unwrap();
+    gh.join().unwrap();
     Ok(())
 }
