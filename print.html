@@ -171,7 +171,7 @@
 When installing rustup, it will prompt you to install the latest stable Rust version. If you already have rust installed, run <code>rustup upgrade</code> to get the latest version.</p>
 <p>Note that as stated by the installer, you will need to export an env variable in your shell .rc file after the install process, and restart your shell to pick it up.</p>
 <p>You can sanity check your installation by running <code>cargo --version</code>, more on cargo later.</p>
-<p>You will also need to install the MacOS vendored LLVM compiler (it's possible you already have it, but it tends to disappear after a major MacOS upgrade): run <code>xcode-select install</code>.</p>
+<p>You will also need to install the MacOS vendored LLVM compiler (it's possible you already have it, but it tends to disappear after a major MacOS upgrade): run <code>xcode-select --install</code>.</p>
 <p>I also highly recommend to export these two env variables in your shell:</p>
 <pre><code class="language-sh">export CARGO_NET_GIT_FETCH_WITH_CLI=true  # fixes issues with git that tend to happen with ssh
 export CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse  # makes git operations a lot faster, requires latest rust version
